@@ -2,6 +2,12 @@
 
 > **Elevator Pitch:** Bring your studies, deadlines, and daily momentum together with an all-in-one AI study companion featuring real-time voice planning, interactive 3D spatial companions, and distraction-free focus sessions.
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://focus-flow-liard-theta.vercel.app/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/Karthik-16-tech/Focus_Flow)
+
+- 🌐 **Live Deployment:** [https://focus-flow-liard-theta.vercel.app/](https://focus-flow-liard-theta.vercel.app/)
+- 💻 **GitHub Repository:** [https://github.com/Karthik-16-tech/Focus_Flow](https://github.com/Karthik-16-tech/Focus_Flow)
+
 ---
 
 ## 💡 Inspiration
