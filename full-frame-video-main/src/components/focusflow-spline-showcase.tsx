@@ -80,6 +80,7 @@ export function FocusFlowSplineShowcase() {
 
     const stage = stageRef.current;
     let sceneObserver: IntersectionObserver | undefined;
+    let pauseObserver: IntersectionObserver | undefined;
 
     if (stage) {
       sceneObserver = new IntersectionObserver(
@@ -101,10 +102,25 @@ export function FocusFlowSplineShowcase() {
           }
 
           if (!stage.querySelector("spline-viewer")) {
-            const viewer = document.createElement("spline-viewer");
+            const viewer = document.createElement("spline-viewer") as any;
             viewer.setAttribute("url", splineScene);
             viewer.setAttribute("loading", "lazy");
             viewer.setAttribute("aria-label", "Interactive 3D FocusFlow scene");
+
+            // Pause WebGL rendering loop when scrolled offscreen to guarantee 60-120fps smooth scrolling
+            pauseObserver = new IntersectionObserver(
+              ([e]) => {
+                try {
+                  if (e.isIntersecting) {
+                    viewer.play?.();
+                  } else {
+                    viewer.stop?.();
+                  }
+                } catch (_) {}
+              },
+              { threshold: 0 }
+            );
+            pauseObserver.observe(stage);
 
             // Strip/hide the "Built with Spline" watermark badge using MutationObserver & shadowRoot injection
             const cleanShadow = () => {
@@ -158,6 +174,7 @@ export function FocusFlowSplineShowcase() {
     return () => {
       revealObserver.disconnect();
       sceneObserver?.disconnect();
+      pauseObserver?.disconnect();
     };
   }, []);
 

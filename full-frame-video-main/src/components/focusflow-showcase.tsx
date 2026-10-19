@@ -70,6 +70,7 @@ export function FocusFlowShowcase() {
 
     const down = (event: PointerEvent) => {
       if (event.button !== 0) return;
+      if (event.pointerType === "touch") return; // Keep vertical touch scrolling 100% fluid and unblocked
       dragging = true;
       velocity = 0;
       previousX = event.clientX;

@@ -214,9 +214,8 @@ function FocusFlowHome() {
           end: "bottom 45%",
           scrub: 0.8,
         },
-        y: -90,
+        y: -80,
         opacity: 0,
-        filter: prefersReducedMotion ? "none" : "blur(6px)",
         ease: "power2.out",
       });
 

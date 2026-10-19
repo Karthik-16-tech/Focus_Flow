@@ -77,15 +77,13 @@ export function ScrollTextReveal({
         );
       }
 
-      // 3. Ultra-smooth scroll-driven character reveal with center pin
+      // 3. Ultra-smooth natural scroll-driven character reveal (unpinned for zero scroll hitching)
       const charTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: container,
-          start: "center center",
-          end: "+=135%",
-          pin: true,
-          scrub: 1.2,
-          anticipatePin: 1,
+          start: "top 75%",
+          end: "bottom 35%",
+          scrub: 0.8,
           invalidateOnRefresh: true,
         },
       });
@@ -95,10 +93,10 @@ export function ScrollTextReveal({
         opacity: 1,
         duration: 1,
         stagger: {
-          each: 0.02,
+          each: 0.015,
           ease: "linear",
         },
-        ease: "power1.inOut",
+        ease: "power1.out",
       });
     }, container);
 
@@ -116,7 +114,7 @@ export function ScrollTextReveal({
     <section
       ref={containerRef}
       id={id}
-      className={`scroll-text-reveal-section relative w-full bg-white text-black py-20 sm:py-24 md:py-32 px-6 sm:px-10 md:px-14 lg:px-20 overflow-hidden flex flex-col justify-center min-h-screen ${className}`}
+      className={`scroll-text-reveal-section relative w-full bg-white text-black py-20 sm:py-24 md:py-32 px-6 sm:px-10 md:px-14 lg:px-20 overflow-hidden flex flex-col justify-center min-h-[70vh] ${className}`}
       aria-label={`${eyebrow}: ${fullText}`}
     >
       <div className="max-w-[1360px] mx-auto w-full">
@@ -153,7 +151,7 @@ export function ScrollTextReveal({
                     {Array.from(word).map((char, charIndex) => (
                       <span
                         key={`${char}-${charIndex}`}
-                        className="reveal-char inline-block transition-none will-change-[color,opacity]"
+                        className="reveal-char inline-block transition-none"
                       >
                         {char}
                       </span>

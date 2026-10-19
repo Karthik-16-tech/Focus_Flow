@@ -83,10 +83,10 @@ export function gsapScrollTo(
  */
 export function useGsapSmoothScroll(options: GsapSmoothScrollOptions = {}) {
   const {
-    duration = 1.15,
+    duration = 1.05,
     easing = (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    wheelMultiplier = 1.0,
-    touchMultiplier = 1.8,
+    wheelMultiplier = 0.95,
+    touchMultiplier = 1.0,
   } = options;
 
   useEffect(() => {
@@ -122,8 +122,8 @@ export function useGsapSmoothScroll(options: GsapSmoothScrollOptions = {}) {
     };
 
     gsap.ticker.add(updateTicker);
-    // Disable lagSmoothing so Lenis doesn't jump after frame drops
-    gsap.ticker.lagSmoothing(0);
+    // Graceful lag smoothing (500ms max delta, 33ms target frame) prevents freezes and jumps on frame drops
+    gsap.ticker.lagSmoothing(500, 33);
 
     // 3. Smooth in-page anchor links click handler (#hero, #why-focusflow, etc.)
     const onAnchorClick = (e: MouseEvent) => {
