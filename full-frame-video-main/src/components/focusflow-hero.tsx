@@ -134,7 +134,6 @@ export function FocusFlowHero() {
       media.add("(prefers-reduced-motion: no-preference)", () => {
         const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
         timeline
-          .from(".micro-header > *", { opacity: 0, y: 9, duration: 1, stagger: 0.12 })
           .from(".flow-viewport", { opacity: 0, duration: 1.4 }, 0.2)
           .from(".contour", { opacity: 0, duration: 1.2 }, 0.5)
           .from(".flow-caption", { y: 16, opacity: 0, duration: 1 }, 0.6);
@@ -145,19 +144,6 @@ export function FocusFlowHero() {
 
   return (
     <section className="focusflow-showcase" ref={root} id="showcase">
-      <header className="micro-header">
-        <div className="micro-brand">
-          <span className="square-mark" />
-          <span>F O C U S F L O W</span>
-          <span className="registered">®</span>
-        </div>
-        <span className="plus-mark" aria-hidden="true" />
-        <div className="micro-tagline">
-          <span>A SMARTER STUDENT TOMORROW</span>
-          <span className="square-mark" />
-        </div>
-      </header>
-
       <div className="flow-composition" aria-label="FocusFlow — Your student life in one flow">
         <svg className="flow-definitions" aria-hidden="true">
           <defs>

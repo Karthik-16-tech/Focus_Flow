@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
+import gsap from 'gsap';
 import {
   ArrowLeft,
   ArrowRight,
@@ -37,6 +38,7 @@ import {
 import { toast } from 'sonner';
 import { Mascot } from './mascot';
 import { Timeline } from './timeline';
+import { VoiceAssistantDialog } from './VoiceAssistantDialog';
 import {
   completionStats,
   demoTasks,
@@ -115,6 +117,18 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
   const [due, setDue] = useState('');
   const [busy, setBusy] = useState(false);
   const [chatInput, setChatInput] = useState('');
+  const [voiceAssistantQuery, setVoiceAssistantQuery] = useState('');
+
+  function handleAddTaskFromDialog(taskTitle: string, dueLabel?: string) {
+    const record: Task = {
+      id: crypto.randomUUID(),
+      title: taskTitle.trim(),
+      due_label: dueLabel || 'Today · 5:00 PM',
+      kind: 'task',
+      completed: false,
+    };
+    setTasks(old => [record, ...old]);
+  }
 
   useEffect(() => {
     setNow(new Date());
@@ -233,12 +247,20 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
       day: 'numeric',
     }) ?? 'Your day';
 
-  function handleHomeClick() {
+  function handleHomeClick(e?: React.MouseEvent) {
+    if (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+    }
     if (onNavigateHome) {
       onNavigateHome();
     } else {
       navigate({ to: '/dashboard' });
     }
+  }
+
+  function handleNavigate(to: string) {
+    navigate({ to });
   }
 
   function taskRows(all = false) {
@@ -274,7 +296,7 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
   }
 
   return (
-    <main className="app-shell">
+    <main className="app-shell ff-tab-pane">
       {/* FocusFlow Top Header with Brand */}
       <header className="app-header">
         <Link
@@ -312,7 +334,7 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
         <Button
           variant="navigation"
           className="ff-nav-button"
-          onClick={() => navigate({ to: '/calendar' })}
+          onClick={() => handleNavigate('/calendar')}
         >
           <CalendarDays strokeWidth={1.8} />
           <span>Calendar</span>
@@ -320,7 +342,7 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
         <Button
           variant="navigation"
           className="ff-nav-button"
-          onClick={() => navigate({ to: '/chat' })}
+          onClick={() => handleNavigate('/chat')}
         >
           <MessageSquare strokeWidth={1.8} />
           <span>Chat</span>
@@ -328,7 +350,7 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
         <Button
           variant="navigation"
           className="ff-nav-button"
-          onClick={() => navigate({ to: '/goals' })}
+          onClick={() => handleNavigate('/goals')}
         >
           <Target strokeWidth={1.8} />
           <span>Goals</span>
@@ -353,17 +375,21 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
                 onSubmit={e => {
                   e.preventDefault();
                   if (chatInput.trim()) {
-                    toast.success(`Message sent: "${chatInput}"`);
+                    const query = chatInput.trim();
+                    setVoiceAssistantQuery(query);
                     setChatInput('');
+                    open('plan');
+                  } else {
+                    setVoiceAssistantQuery('');
+                    open('plan');
                   }
-                  open('plan');
                 }}
               >
                 <MessageCircle className="chat-pill-icon" size={17} />
                 <input
                   type="text"
                   className="chat-pill-input"
-                  placeholder="Type a message..."
+                  placeholder="Ask voice assistant or plan day..."
                   value={chatInput}
                   onChange={e => setChatInput(e.target.value)}
                   aria-label="Type a message to assistant"
@@ -372,7 +398,10 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
                   type="button"
                   className="chat-pill-mic"
                   aria-label="Voice input or plan day"
-                  onClick={() => open('plan')}
+                  onClick={() => {
+                    setVoiceAssistantQuery('');
+                    open('plan');
+                  }}
                 >
                   <Mic size={15} />
                 </button>
@@ -652,8 +681,8 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
         </div>
       </div>
 
-      {/* Interactive Modal Dialogs */}
-      <Dialog open={modal !== null} onOpenChange={val => !val && setModal(null)}>
+      {/* Interactive Modal Dialogs for Quick Forms */}
+      <Dialog open={modal !== null && modal !== 'plan'} onOpenChange={val => !val && setModal(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -665,9 +694,7 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
                     ? 'Create an event'
                     : modal === 'tasks'
                       ? "Today's tasks"
-                      : modal === 'notifications'
-                        ? 'Your updates'
-                        : 'Plan your day'}
+                      : 'Your updates'}
             </DialogTitle>
             <DialogDescription>
               {modal === 'notifications'
@@ -716,34 +743,6 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
             </>
           )}
 
-          {modal === 'plan' && (
-            <>
-              <div className="modal-tabs mb-4">
-                <Button onClick={() => open('task')}>
-                  <Plus /> Add Task
-                </Button>
-                <Button variant="secondary" onClick={() => open('event')}>
-                  <CalendarDays /> Create Event
-                </Button>
-              </div>
-              {taskRows(true)}
-              {events.map(e => (
-                <p key={e.id} className="text-muted-foreground text-xs my-1">
-                  {e.title} · {new Date(e.starts_at).toLocaleString()}
-                </p>
-              ))}
-              <Button
-                className="soft-button w-full mt-4"
-                onClick={() => {
-                  toggleFocus();
-                  setModal(null);
-                }}
-              >
-                <Play /> Begin a focus session
-              </Button>
-            </>
-          )}
-
           {modal === 'notifications' && (
             <p className="empty-state">
               {tasks.filter(t => !t.completed).length
@@ -753,6 +752,26 @@ export function TasksDashboard({ onNavigateHome }: { onNavigateHome?: () => void
           )}
         </DialogContent>
       </Dialog>
+
+      {/* FocusFlow Voice Assistant Dialog with Spline 3D Mascot & Plan Your Day */}
+      <VoiceAssistantDialog
+        open={modal === 'plan'}
+        onOpenChange={isOpen => {
+          if (!isOpen) {
+            setModal(null);
+            setVoiceAssistantQuery('');
+          }
+        }}
+        initialQuery={voiceAssistantQuery}
+        tasks={tasks}
+        onToggleTask={toggleTask}
+        onAddTask={handleAddTaskFromDialog}
+        events={events}
+        onStartFocus={() => {
+          if (!running) toggleFocus();
+        }}
+        isFocusRunning={running}
+      />
     </main>
   );
 }

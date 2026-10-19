@@ -1,9 +1,10 @@
 import { ArrowUp, Sparkles, Send, ShieldCheck, Github, Twitter, Disc as Discord, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { gsapScrollTo } from "@/hooks/use-gsap-smooth-scroll";
 
 export function FocusFlowFooter() {
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    gsapScrollTo(0, { duration: 1.2 });
   };
 
   return (

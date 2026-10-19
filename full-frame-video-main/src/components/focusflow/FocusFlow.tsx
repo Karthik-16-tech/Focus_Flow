@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, type ReactNode, type FormEvent } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
+import gsap from "gsap";
 import {
   ArrowLeft,
   ArrowRight,
@@ -29,10 +30,14 @@ import { SplineScene } from "./SplineScene";
 import {
   ActionCapsule,
   AchievementsCapsule,
+  TodayTodoCapsule,
+  ProfileCapsule,
+  CompetitionsCapsule,
 } from "./ActionCapsules";
 import { TasksDashboard } from "./TasksDashboard";
 import { AcademicCalendarDashboard } from "./AcademicCalendarDashboard";
 import { SpatialCreationStudio } from "./SpatialCreationStudio";
+import { GoalsDiscoveryDashboard } from "./GoalsDiscoveryDashboard";
 
 export type Task = { id: number; title: string; done: boolean; time: string };
 
@@ -104,7 +109,9 @@ export function FocusFlowDashboard({ initialTab = 0 }: { initialTab?: number }) 
           setActiveTab,
         }}
       >
-        <TasksDashboard onNavigateHome={() => setActiveTab(0)} />
+        <div key="tab-tasks" className="ff-tab-pane w-full min-h-screen">
+          <TasksDashboard onNavigateHome={() => setActiveTab(0)} />
+        </div>
       </PlannerContext.Provider>
     );
   }
@@ -120,7 +127,27 @@ export function FocusFlowDashboard({ initialTab = 0 }: { initialTab?: number }) 
           setActiveTab,
         }}
       >
-        <SpatialCreationStudio />
+        <div key="tab-chat" className="ff-tab-pane w-full min-h-screen">
+          <SpatialCreationStudio />
+        </div>
+      </PlannerContext.Provider>
+    );
+  }
+
+  if (activeTab === 4) {
+    return (
+      <PlannerContext.Provider
+        value={{
+          tasks,
+          addTask,
+          toggleTask,
+          activeTab,
+          setActiveTab,
+        }}
+      >
+        <div key="tab-goals" className="ff-tab-pane w-full min-h-screen">
+          <GoalsDiscoveryDashboard />
+        </div>
       </PlannerContext.Provider>
     );
   }
@@ -135,7 +162,10 @@ export function FocusFlowDashboard({ initialTab = 0 }: { initialTab?: number }) 
         setActiveTab,
       }}
     >
-      <div className={`ff-app ${activeTab === 0 ? "ff-is-home" : "ff-is-workspace"}`}>
+      <div
+        key={`tab-${activeTab}`}
+        className={`ff-app ff-tab-pane ${activeTab === 0 ? "ff-is-home" : "ff-is-workspace"}`}
+      >
         <SplineScene isWorkspace={activeTab !== 0} />
 
         <header className="ff-header">
@@ -217,9 +247,8 @@ export function FocusFlowDashboard({ initialTab = 0 }: { initialTab?: number }) 
 }
 
 export function HomePage({ onPlanClick }: { onPlanClick?: () => void }) {
-  const { setActiveTab } = useContext(PlannerContext);
+  const { setActiveTab, tasks } = useContext(PlannerContext);
   const handlePlan = onPlanClick || (() => setActiveTab(1));
-  const [achievementsOpen, setAchievementsOpen] = useState(false);
 
   return (
     <>
@@ -232,19 +261,11 @@ export function HomePage({ onPlanClick }: { onPlanClick?: () => void }) {
       <div className="ff-dashboard-capsules-bar">
         <div className="ff-capsules-group ff-capsules-group--left">
           <AchievementsCapsule
-            isOpen={achievementsOpen}
-            onToggle={() => setAchievementsOpen((prev) => !prev)}
-            onClose={() => setAchievementsOpen(false)}
-            onViewAll={() => {
-              setAchievementsOpen(false);
-              setActiveTab(5);
-            }}
+            onViewAll={() => setActiveTab(5)}
           />
-          <ActionCapsule
-            variant="blue"
-            icon={FileText}
-            label="Today's To-Do"
-            onClick={() => setActiveTab(1)}
+          <TodayTodoCapsule
+            tasks={tasks}
+            onViewAll={() => setActiveTab(1)}
           />
         </div>
 
@@ -259,17 +280,11 @@ export function HomePage({ onPlanClick }: { onPlanClick?: () => void }) {
         </Button>
 
         <div className="ff-capsules-group ff-capsules-group--right">
-          <ActionCapsule
-            variant="purple"
-            icon={User}
-            label="My Profile"
-            onClick={() => setActiveTab(6)}
+          <ProfileCapsule
+            onViewAll={() => setActiveTab(6)}
           />
-          <ActionCapsule
-            variant="green"
-            icon={Trophy}
-            label="Competitions"
-            onClick={() => setActiveTab(7)}
+          <CompetitionsCapsule
+            onViewAll={() => setActiveTab(7)}
           />
         </div>
       </div>
@@ -457,72 +472,7 @@ export function ResourcesPage() {
 }
 
 export function GoalsPage() {
-  const [goals, setGoals] = useState<{ title: string; done: boolean }[]>([
-    { title: "Maintain 35-hour deep focus streak this month", done: true },
-    { title: "Submit honors research thesis proposal by Friday", done: false },
-    { title: "Master dynamic programming & graph search fundamentals", done: false },
-  ]);
-  const [title, setTitle] = useState("");
-
-  return (
-    <Workspace
-      eyebrow="SMALL STEPS. BIG POSSIBILITIES."
-      title="Your goals"
-      subtitle="Give your dreams a direction."
-    >
-      <form
-        className="ff-goal-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!title.trim()) return;
-          setGoals((old) => [...old, { title: title.trim(), done: false }]);
-          setTitle("");
-        }}
-      >
-        <label className="ff-field">
-          <span>What are you working toward?</span>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Set a goal"
-            required
-          />
-        </label>
-        <Button type="submit">
-          <Plus /> Add goal
-        </Button>
-      </form>
-      {goals.length === 0 ? (
-        <div className="ff-empty">
-          <Target />
-          <p>Every dream starts somewhere.</p>
-          <span>Make your first intention.</span>
-        </div>
-      ) : (
-        <ul className="ff-task-list">
-          {goals.map((goal, i) => (
-            <li key={i} data-complete={goal.done}>
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label={`${goal.done ? "Uncomplete" : "Complete"} ${goal.title}`}
-                onClick={() =>
-                  setGoals((old) =>
-                    old.map((g, index) =>
-                      index === i ? { ...g, done: !g.done } : g,
-                    ),
-                  )
-                }
-              >
-                {goal.done && <Check />}
-              </Button>
-              <span>{goal.title}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Workspace>
-  );
+  return <GoalsDiscoveryDashboard />;
 }
 
 export function AchievementsPage() {

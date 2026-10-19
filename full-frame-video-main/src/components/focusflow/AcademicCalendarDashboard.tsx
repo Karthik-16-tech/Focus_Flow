@@ -118,17 +118,6 @@ const INITIAL_CALENDAR_EVENTS: CalendarEventItem[] = [
     gridRowSpan: 2,
   },
   {
-    id: "cal-4",
-    day: 1, // Mon
-    startTime: "16:00",
-    endTime: "17:00",
-    subject: "Operating Systems",
-    activity: "Notes",
-    category: "os",
-    gridRowStart: 8,
-    gridRowSpan: 2,
-  },
-  {
     id: "cal-5",
     day: 2, // Tue
     startTime: "09:00",
@@ -159,17 +148,6 @@ const INITIAL_CALENDAR_EVENTS: CalendarEventItem[] = [
     activity: "Study",
     category: "algo",
     gridRowStart: 1,
-    gridRowSpan: 2,
-  },
-  {
-    id: "cal-8",
-    day: 5, // Fri
-    startTime: "14:00",
-    endTime: "16:00",
-    subject: "OS Reading",
-    activity: "Study",
-    category: "os",
-    gridRowStart: 6,
     gridRowSpan: 2,
   },
   {
@@ -209,14 +187,6 @@ const INITIAL_SCHEDULE: ScheduleRow[] = [
     details: "Problem Practice",
     color: "#a855f7",
     category: "algo",
-  },
-  {
-    id: "sch-4",
-    time: "16:30 – 18:00",
-    subject: "Operating Systems",
-    details: "Revision",
-    color: "#22c55e",
-    category: "os",
   },
 ];
 
@@ -428,7 +398,7 @@ export function AcademicCalendarDashboard() {
   };
 
   return (
-    <div className="ff-acad-page">
+    <div className="ff-acad-page ff-tab-pane">
       {/* Abstract Glowing Atmosphere Blobs */}
       <div className="ff-acad-blob ff-acad-blob-1" aria-hidden="true" />
       <div className="ff-acad-blob ff-acad-blob-2" aria-hidden="true" />
@@ -441,7 +411,7 @@ export function AcademicCalendarDashboard() {
         {/* ========================================================= */}
         <header className="ff-acad-header">
           {/* Brand Logo */}
-          <Link to="/" className="ff-acad-brand" aria-label="FocusFlow Home">
+          <Link to="/dashboard" className="ff-acad-brand" aria-label="FocusFlow Home">
             <svg viewBox="0 0 24 24" className="ff-acad-sparkle-icon" aria-hidden="true">
               <path
                 d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z"
@@ -462,7 +432,7 @@ export function AcademicCalendarDashboard() {
           <Button
             variant="navigation"
             className="ff-nav-button"
-            onClick={() => navigate({ to: "/" })}
+            onClick={() => navigate({ to: "/dashboard" })}
           >
             <Home strokeWidth={1.8} />
             <span>Home</span>
@@ -666,19 +636,6 @@ export function AcademicCalendarDashboard() {
                 <ChevronRight size={13} className="ff-acad-pill-chevron" />
               </button>
 
-              <button
-                type="button"
-                className={`ff-acad-subject-pill ff-acad-subject-pill-os ${selectedSubjectFilter === "os" ? "is-active" : ""}`}
-                onClick={() =>
-                  setSelectedSubjectFilter(selectedSubjectFilter === "os" ? null : "os")
-                }
-              >
-                <span className="ff-acad-pill-icon ff-pill-icon-os">
-                  <Cpu size={14} />
-                </span>
-                <span className="ff-acad-pill-name">Operating Systems</span>
-                <ChevronRight size={13} className="ff-acad-pill-chevron" />
-              </button>
             </div>
           </div>
 
@@ -934,7 +891,7 @@ export function AcademicCalendarDashboard() {
                   <option value="DAA">DAA (Algorithms)</option>
                   <option value="CN">CN (Computer Networks)</option>
                   <option value="DBMS">DBMS (Databases)</option>
-                  <option value="OS">OS (Operating Systems)</option>
+                  <option value="AI">AI & ML (Elective)</option>
                 </select>
               </label>
               <label className="ff-acad-field">
